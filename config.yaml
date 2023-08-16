@@ -30,7 +30,7 @@ train:
 
 filepath:
   GPU-Server:
-    knowair_fp: /kaggle/input/knowair
+    knowair_fp: /kaggle/input/knowair/KnowAir.npy
     results_dir: /kaggle/working/results
 data:
   metero_var:
