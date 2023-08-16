@@ -30,9 +30,8 @@ train:
 
 filepath:
   GPU-Server:
-    knowair_fp: /data/wangshuo/haze/pm25gnn/KnowAir.npy
-    results_dir: /data/wangshuo/haze/pm25gnn/results
-
+    knowair_fp: /kaggle/input/knowair
+    results_dir: /kaggle/working/results
 data:
   metero_var:
     ['100m_u_component_of_wind',
