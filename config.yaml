@@ -29,7 +29,7 @@ train:
   lr: 0.0005
 
 filepath:
-  GPU-Server:
+  94941c3cf90f:
     knowair_fp: /kaggle/input/knowair/KnowAir.npy
     results_dir: /kaggle/working/results
 data:
