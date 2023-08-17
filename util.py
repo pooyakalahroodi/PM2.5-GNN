@@ -11,8 +11,7 @@ with open(conf_fp) as f:
     config = yaml.load(f, Loader=yaml.FullLoader)
 
 
-nodename = os.uname().nodename
-file_dir = config['filepath'][nodename]
+file_dir = config['filepath']
 
 
 def main():
