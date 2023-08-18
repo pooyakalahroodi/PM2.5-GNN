@@ -1,0 +1,32 @@
+============== Train Info ==============
+Dataset number: 3
+Model: GC_LSTM
+Train: 2016-09-01T00:00:00+00:00 --> 2016-11-30T00:00:00+00:00
+Val: 2016-12-01T00:00:00+00:00 --> 2016-12-31T00:00:00+00:00
+Test: 2017-01-01T00:00:00+00:00 --> 2017-01-31T00:00:00+00:00
+City number: 184
+Use metero: ['2m_temperature', 'boundary_layer_height', 'k_index', 'relative_humidity+950', 'surface_pressure', 'total_precipitation', 'u_component_of_wind+950', 'v_component_of_wind+950']
+batch_size: 32
+epochs: 30
+hist_len: 1
+pred_len: 24
+weight_decay: 0.0005
+early_stop: 10
+lr: 0.0005
+========================================
+GC_LSTM(
+  (conv): ChebConv(13, 1, K=2, normalization=sym)
+  (lstm_cell): LSTMCell(
+    (x2h): Linear(in_features=14, out_features=128, bias=True)
+    (h2h): Linear(in_features=32, out_features=128, bias=True)
+  )
+  (fc_out): Linear(in_features=32, out_features=1, bias=True)
+)---------------------------------------
+train_loss | mean: 0.4667 std: 0.0089
+val_loss   | mean: 0.5653 std: 0.0039
+test_loss  | mean: 0.4849 std: 0.0213
+RMSE       | mean: 44.1698 std: 1.0169
+MAE        | mean: 36.1419 std: 0.8882
+CSI        | mean: 0.5999 std: 0.0048
+POD        | mean: 0.8263 std: 0.0002
+FAR        | mean: 0.3135 std: 0.0061
