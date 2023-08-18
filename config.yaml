@@ -10,18 +10,18 @@ experiments:
                'v_component_of_wind+950',]
   save_npy: True
   dataset_num: 3
-  model: MLP
+#  model: MLP
 #  model: LSTM
 #  model: GRU
 #  model: GC_LSTM
 #  model: nodesFC_GRU
 #  model: PM25_GNN
-#  model: PM25_GNN_nosub
+  model: PM25_GNN_nosub
 
 train:
   batch_size: 32
-  epochs: 50
-  exp_repeat: 10
+  epochs: 30
+  exp_repeat: 2
   hist_len: 1
   pred_len: 24
   weight_decay: 0.0005
@@ -29,8 +29,10 @@ train:
   lr: 0.0005
 
 filepath:
-    knowair_fp: /kaggle/input/knowair/KnowAir.npy
-    results_dir: /kaggle/working/results
+  HIU733:
+    knowair_fp: /Users/kalahroodi/PM2.5-GNN/KnowAir.npy
+    results_dir: /Users/kalahroodi/PM2.5-GNN/results
+
 data:
   metero_var:
     ['100m_u_component_of_wind',
