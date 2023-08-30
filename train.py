@@ -27,6 +27,8 @@ torch.set_num_threads(1)
 use_cuda = torch.cuda.is_available()
 device = torch.device('cuda' if use_cuda else 'cpu')
 
+print('use cuda : ',use_cuda)
+
 graph = Graph()
 city_num = graph.node_num
 
