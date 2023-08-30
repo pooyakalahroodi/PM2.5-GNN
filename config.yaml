@@ -31,7 +31,7 @@ train:
 filepath:
   HIU733:
     knowair_fp: /Users/kalahroodi/PM2.5-GNN/KnowAir.npy
-    results_dir: /Users/kalahroodi/PM2.5-GNN/results
+    results_dir: https://drive.google.com/drive/folders/1sJh2JwA1mgOKBrZUg-ZEaWUIMFhei0kk?usp=drive_link
 
 data:
   metero_var:
