@@ -1,4 +1,4 @@
-from transformer import CustomTransformer  # Import your Transformer module
+from transformer import Transformer  # Import your Transformer module
 
 class PM25_GNN(nn.Module):
     def __init__(self, hist_len, pred_len, in_dim, city_num, batch_size, device, edge_index, edge_attr, wind_mean, wind_std):
@@ -19,7 +19,7 @@ class PM25_GNN(nn.Module):
         self.graph_gnn = GraphGNN(self.device, edge_index, edge_attr, self.in_dim, self.gnn_out, wind_mean, wind_std)
         
         # Replace the GRU cell with the CustomTransformer module
-        self.transformer = CustomTransformer(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=4, num_layers=2)
+        self.transformer = Transformer(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=4, num_layers=2)
         
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
 
