@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class TransformerCell(nn.Module):
+class Transformer(nn.Module):
     def __init__(self, input_size, hidden_size, num_heads=4, dropout=0.1):
-        super(TransformerCell, self).__init__()
+        super(Transformer, self).__init__()
 
         self.input_size = input_size
         self.hidden_size = hidden_size
