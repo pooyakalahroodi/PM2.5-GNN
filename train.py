@@ -13,6 +13,8 @@ from model.GC_LSTM import GC_LSTM
 from model.nodesFC_GRU import nodesFC_GRU
 from model.PM25_GNN import PM25_GNN
 from model.PM25_GNN_nosub import PM25_GNN_nosub
+from model.TransformerGNN import TransformerGNN
+
 
 import arrow
 import torch
