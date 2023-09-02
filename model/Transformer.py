@@ -3,28 +3,30 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class Transformer(nn.Module):
-    def __init__(self, input_size, hidden_size, num_heads=4, dropout=0.1):
+    def __init__(self, input_dim, hidden_dim,num_heads=4,num_layers=2,dropout=0.1):
         super(Transformer, self).__init__()
 
-        self.input_size = input_size
-        self.hidden_size = hidden_size
+        self.input_dim = input_dim
+        self.hidden_dim = hidden_dim
         self.num_heads = num_heads
+        self.embed_dim = input_dim * num_heads
+
 
         # Multi-Head Self-Attention Layer
-        self.self_attention = nn.MultiheadAttention(input_size, num_heads, dropout=dropout)
-
+        self.self_attention = nn.MultiheadAttention(embed_dim=self.embed_dim,num_heads=self.num_heads, dropout=dropout)
+        print (self.self_attention.embed_dim)
         # Layer Normalization after self-attention
-        self.norm1 = nn.LayerNorm(input_size)
+        self.norm1 = nn.LayerNorm(input_dim)
 
         # Feedforward Layer
         self.feedforward = nn.Sequential(
-            nn.Linear(input_size, hidden_size),
+            nn.Linear(input_dim, hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_size, input_size)
+            nn.Linear(hidden_dim, input_dim)
         )
 
         # Layer Normalization after feedforward
-        self.norm2 = nn.LayerNorm(input_size)
+        self.norm2 = nn.LayerNorm(input_dim)
 
     def forward(self, x):
         # Multi-Head Self-Attention
