@@ -9,12 +9,11 @@ class Transformer(nn.Module):
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.num_heads = num_heads
-        self.embed_dim = input_dim * num_heads
 
 
         # Multi-Head Self-Attention Layer
-        self.self_attention = nn.MultiheadAttention(embed_dim=self.embed_dim,num_heads=self.num_heads, dropout=dropout)
-        print (self.self_attention.embed_dim)
+        self.self_attention = nn.MultiheadAttention(embed_dim=self.input_dim,num_heads=self.num_heads, dropout=dropout)
+        #print (self.self_attention.embed_dim)
         # Layer Normalization after self-attention
         self.norm1 = nn.LayerNorm(input_dim)
 
