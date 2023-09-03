@@ -75,7 +75,7 @@ class TransformerGNN(nn.Module):
         self.batch_size = batch_size
 
         self.in_dim = in_dim
-        self.hid_dim = 64
+        self.hid_dim = 26
         self.out_dim = 1
         self.gnn_out = 13
 
@@ -83,7 +83,8 @@ class TransformerGNN(nn.Module):
         self.graph_gnn = GraphGNN(self.device, edge_index, edge_attr, self.in_dim, self.gnn_out, wind_mean, wind_std)
 
         # Replace the GRU cell with the CustomTransformer module
-        self.transformer = Transformer(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=4, num_layers=2)
+        print("in_dim",self.in_dim ,"+","gnn_out",self.gnn_out,"input_dim = self.in_dim + self.gnn_out",self.in_dim + self.gnn_out)
+        self.transformer = Transformer(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
 
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
 
