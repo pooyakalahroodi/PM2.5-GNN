@@ -24,6 +24,10 @@ import numpy as np
 import pickle
 import glob
 import shutil
+import wandb
+
+wandb.init(project="your_project_name", config=config)
+
 
 torch.set_num_threads(1)
 use_cuda = torch.cuda.is_available()
@@ -230,11 +234,14 @@ def main():
             train_loss = train(train_loader, model, optimizer)
             val_loss = val(val_loader, model)
 
+            wandb.log({"train_loss": train_loss, "val_loss": val_loss})
+
             print('train_loss: %.4f' % train_loss)
             print('val_loss: %.4f' % val_loss)
 
             if epoch - best_epoch > early_stop:
                 break
+            
 
             if val_loss < val_loss_min:
                 val_loss_min = val_loss
@@ -247,6 +254,7 @@ def main():
                 train_loss_, val_loss_ = train_loss, val_loss
                 rmse, mae, csi, pod, far = get_metric(predict_epoch, label_epoch)
                 print('Train loss: %0.4f, Val loss: %0.4f, Test loss: %0.4f, RMSE: %0.2f, MAE: %0.2f, CSI: %0.4f, POD: %0.4f, FAR: %0.4f' % (train_loss_, val_loss_, test_loss, rmse, mae, csi, pod, far))
+                wandb.log({"test_loss": test_loss, "predict_epoch": predict_epoch,"label_epoch": label_epoch,"time_epoch": time_epoch,"rmse": rmse,"mae": mae,"csi": csi,"pod": pod,"far": far})
 
                 if save_npy:
                     np.save(os.path.join(exp_model_dir, 'predict.npy'), predict_epoch)
@@ -289,6 +297,7 @@ def main():
     print(str(model))
     print(metric_fp)
 
-
+# Finish the wandb run
+wandb.finish()
 if __name__ == '__main__':
     main()
