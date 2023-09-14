@@ -26,8 +26,12 @@ import glob
 import shutil
 import wandb
 
-wandb.init(project="your_project_name", config=config)
-
+wandb.init(
+    project=config['wandb_init']['project'],
+    name=config['wandb_init'].get('name', None),
+    config=config['wandb_init'].get('config', None),
+    # Add other settings as needed
+)
 
 torch.set_num_threads(1)
 use_cuda = torch.cuda.is_available()
