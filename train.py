@@ -26,6 +26,9 @@ import glob
 import shutil
 import wandb
 
+
+wandb.login(key=name=config['wandb_login'].get('api_key', None),
+)
 wandb.init(
     project=config['wandb_init']['project'],
     name=config['wandb_init'].get('name', None),
