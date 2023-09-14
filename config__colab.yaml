@@ -19,7 +19,12 @@ experiments:
 #  model: PM25_GNN_nosub
   model: TransformerGNN
 
+wandb_init:
+  project: 'TransformerGNN'
+  name: 'new_run'  # Optional: Set a custom run name
 
+wandb_login:
+  api_key: "793b34be40faa9ce8d1fe02d92dd7f642e204e88"
 
 train:
   batch_size: 32
