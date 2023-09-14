@@ -27,7 +27,7 @@ import shutil
 import wandb
 
 
-wandb.login(key=name=config['wandb_login'].get('api_key', None),
+wandb.login(key=config['wandb_login'].get('api_key', None),
 )
 wandb.init(
     project=config['wandb_init']['project'],
