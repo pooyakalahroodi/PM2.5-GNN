@@ -27,14 +27,6 @@ import shutil
 import wandb
 
 
-wandb.login(key=config['wandb_login'].get('api_key', None),
-)
-wandb.init(
-    project=config['wandb_init']['project'],
-    name=config['wandb_init'].get('name', None),
-    config=config['wandb_init'].get('config', None),
-    # Add other settings as needed
-)
 
 torch.set_num_threads(1)
 use_cuda = torch.cuda.is_available()
@@ -203,6 +195,18 @@ def get_mean_std(data_list):
 
 
 def main():
+    wandb.init(
+    project=config['wandb_init']['project'],
+    name=config['wandb_init'].get('name', None),
+    config=config['train'],
+    # Add other settings as needed
+    )
+
+    wandb.login(key=config['wandb_login'].get('api_key', None),
+    )
+
+    wandb.log({"batch_size": batch_size, "epochs": epochs,"hist_len": hist_len,"pred_len": pred_len,"weight_decay": weight_decay,"early_stop": early_stop,"lr": lr})
+
     exp_info = get_exp_info()
     print(exp_info)
 
@@ -241,7 +245,7 @@ def main():
             train_loss = train(train_loader, model, optimizer)
             val_loss = val(val_loader, model)
 
-            wandb.log({"train_loss": train_loss, "val_loss": val_loss})
+            wandb.log({"train_loss": train_loss, "val_loss": val_loss,"epoch":epoch})
 
             print('train_loss: %.4f' % train_loss)
             print('val_loss: %.4f' % val_loss)
@@ -261,7 +265,7 @@ def main():
                 train_loss_, val_loss_ = train_loss, val_loss
                 rmse, mae, csi, pod, far = get_metric(predict_epoch, label_epoch)
                 print('Train loss: %0.4f, Val loss: %0.4f, Test loss: %0.4f, RMSE: %0.2f, MAE: %0.2f, CSI: %0.4f, POD: %0.4f, FAR: %0.4f' % (train_loss_, val_loss_, test_loss, rmse, mae, csi, pod, far))
-                wandb.log({"test_loss": test_loss, "predict_epoch": predict_epoch,"label_epoch": label_epoch,"time_epoch": time_epoch,"rmse": rmse,"mae": mae,"csi": csi,"pod": pod,"far": far})
+                wandb.log({"test_loss": test_loss,"time_epoch": time_epoch,"rmse": rmse,"mae": mae,"csi": csi,"pod": pod,"far": far,"epoch":epoch})
 
                 if save_npy:
                     np.save(os.path.join(exp_model_dir, 'predict.npy'), predict_epoch)
