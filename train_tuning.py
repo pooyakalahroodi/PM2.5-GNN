@@ -45,12 +45,22 @@ parser.add_argument("--batch_size", type=int, default=32, help="please insert th
 parser.add_argument("--epochs", type=int, default=30, help="please insert the number of epochs")
 parser.add_argument("--hist_len", type=int, default=24, help="please insert the time series's history len")
 parser.add_argument("--pred_len", type=int, default=1, help="please insert the time series's history len")
-parser.add_argument("--batch_size", type=int, default=32, help="please insert the batch size")
 parser.add_argument("--optimizer", type=str, default="Adam", help="Optimizer name")
 parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
 parser.add_argument("--weight_decay", type=float, default=0.0001, help="Weight decay")
 
 args = parser.parse_args()
+
+
+# Access the argument values in the code
+
+optimizer_name = args.optimizer
+batch_size = args.batch_size
+epochs = args.epochs
+hist_len = args.hist_len
+pred_len = args.pred_len
+weight_decay = args.weight_decay
+lr = args.lr
 #batch_size = config['train']['batch_size']
 #epochs = config['train']['epochs']
 #hist_len = config['train']['hist_len']
@@ -241,7 +251,12 @@ def main():
 
         print(str(model))
 
-        optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
+        if optimizer_name == "Adam":
+           optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+        elif optimizer_name == "SGD":
+           optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=args.momentum, weight_decay=weight_decay)
+        elif optimizer_name == "RMSprop":
+           optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
 
         exp_model_dir = os.path.join(results_dir, '%s_%s' % (hist_len, pred_len), str(dataset_num), model_name, str(exp_time), '%02d' % exp_idx)
         if not os.path.exists(exp_model_dir):
