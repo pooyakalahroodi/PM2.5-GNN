@@ -64,26 +64,19 @@ city_num = graph.node_num
 #pred_len = args.pred_len
 #weight_decay = args.weight_decay
 #lr = args.lr
-#batch_size = config['train']['batch_size']
-#epochs = config['train']['epochs']
-#hist_len = config['train']['hist_len']
-#pred_len = config['train']['pred_len']
-#weight_decay = config['train']['weight_decay']
-#early_stop = config['train']['early_stop']
-#lr = config['train']['lr']
+batch_size = config['train']['batch_size']
+epochs = config['train']['epochs']
+hist_len = config['train']['hist_len']
+pred_len = config['train']['pred_len']
+weight_decay = config['train']['weight_decay']
+early_stop = config['train']['early_stop']
+lr = config['train']['lr']
 results_dir = file_dir['results_dir']
 dataset_num = config['experiments']['dataset_num']
 exp_model = config['experiments']['model']
 exp_repeat = config['train']['exp_repeat']
 save_npy = config['experiments']['save_npy']
 criterion = nn.MSELoss()
-
-train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
-val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
-test_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Test')
-in_dim = train_data.feature.shape[-1] + train_data.pm25.shape[-1]
-wind_mean, wind_std = train_data.wind_mean, train_data.wind_std
-pm25_mean, pm25_std = test_data.pm25_mean, test_data.pm25_std
 
 
 def get_metric(predict_epoch, label_epoch):
@@ -238,6 +231,15 @@ def main(config):
     # Add other settings as needed
     )
 
+    # Run the data setup code here
+    train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
+    val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
+    test_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Test')
+    in_dim = train_data.feature.shape[-1] + train_data.pm25.shape[-1]
+    wind_mean, wind_std = train_data.wind_mean, train_data.wind_std
+    pm25_mean, pm25_std = test_data.pm25_mean, test_data.pm25_std
+
+
     wandb.login(key=config['wandb_login'].get('api_key', None),
     )
 
@@ -352,22 +354,31 @@ def main(config):
 # Finish the wandb run
 wandb.finish()
 if __name__ == '__main__':
-    ray.init(local_mode=True)  # Initialize Ray (you can configure it differently)
-        
+    ray.init(
+    object_store_memory=2 * 10**9,  # Set the object store memory limit as needed
+    num_gpus=1,  # Enable GPU support if needed
+    local_mode=True,  # Run in local mode for single-machine testing
+)   
+    train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
+    val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
+    test_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Test')
+    in_dim = train_data.feature.shape[-1] + train_data.pm25.shape[-1]
+    wind_mean, wind_std = train_data.wind_mean, train_data.wind_std
+    pm25_mean, pm25_std = test_data.pm25_mean, test_data.pm25_std    
     # Define the hyperparameter search space
     search_space = {
         "batch_size": tune.grid_search([32, 64]),
-        "epochs": tune.grid_search([30, 50]),
+        "epochs": tune.grid_search([50]),
         "hist_len": tune.grid_search([1, 3]),
-        "pred_len": tune.grid_search([24, 48]),
+        "pred_len": tune.grid_search([24]),
         "weight_decay": tune.grid_search([0.0001, 0.001]),
         "early_stop": tune.grid_search([10, 20]),
         "lr": tune.grid_search([0.0005, 0.001]),
-        "optimizer": tune.grid_search(["Adam", "SGD", "RMSprop"])
+        "optimizer": tune.grid_search(["Adam","RMSprop"])
     }
 
     analysis = tune.run(
-        wrapped_main,  # Use the wrapped main function
+        main,  # Use the wrapped main function
         config=search_space,
         name="hyperparameter_tuning_experiment",
         verbose=1,
