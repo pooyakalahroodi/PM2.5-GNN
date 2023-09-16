@@ -26,7 +26,10 @@ import glob
 import shutil
 import wandb
 import argparse
-
+import ray
+from ray import tune
+from ray.tune import CLIReporter, JupyterNotebookReporter
+from ray.tune.schedulers import ASHAScheduler, HyperBandScheduler
 
 
 torch.set_num_threads(1)
@@ -40,33 +43,33 @@ city_num = graph.node_num
 
 
 # Define the command-line arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("--batch_size", type=int, default=32, help="please insert the batch size")
-parser.add_argument("--epochs", type=int, default=30, help="please insert the number of epochs")
-parser.add_argument("--hist_len", type=int, default=24, help="please insert the time series's history len")
-parser.add_argument("--pred_len", type=int, default=1, help="please insert the time series's history len")
-parser.add_argument("--optimizer", type=str, default="Adam", help="Optimizer name")
-parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
-parser.add_argument("--weight_decay", type=float, default=0.0001, help="Weight decay")
+#parser = argparse.ArgumentParser()
+#parser.add_argument("--batch_size", type=int, default=32, help="please insert the batch size")
+#parser.add_argument("--epochs", type=int, default=30, help="please insert the number of epochs")
+#parser.add_argument("--hist_len", type=int, default=24, help="please insert the time series's history len")
+#parser.add_argument("--pred_len", type=int, default=1, help="please insert the time series's history len")
+#parser.add_argument("--optimizer", type=str, default="Adam", help="Optimizer name")
+#parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
+#parser.add_argument("--weight_decay", type=float, default=0.0001, help="Weight decay")
 
-args = parser.parse_args()
+#args = parser.parse_args()
 
 
 # Access the argument values in the code
 
-optimizer_name = args.optimizer
-batch_size = args.batch_size
-epochs = args.epochs
-hist_len = args.hist_len
-pred_len = args.pred_len
-weight_decay = args.weight_decay
-lr = args.lr
+#optimizer_name = args.optimizer
+#batch_size = args.batch_size
+#epochs = args.epochs
+#hist_len = args.hist_len
+#pred_len = args.pred_len
+#weight_decay = args.weight_decay
+#lr = args.lr
 #batch_size = config['train']['batch_size']
 #epochs = config['train']['epochs']
 #hist_len = config['train']['hist_len']
 #pred_len = config['train']['pred_len']
 #weight_decay = config['train']['weight_decay']
-early_stop = config['train']['early_stop']
+#early_stop = config['train']['early_stop']
 #lr = config['train']['lr']
 results_dir = file_dir['results_dir']
 dataset_num = config['experiments']['dataset_num']
@@ -218,7 +221,16 @@ def get_mean_std(data_list):
     return data.mean(), data.std()
 
 
-def main():
+def main(config):
+  
+    batch_size = config["batch_size"]
+    epochs = config["epochs"]
+    hist_len = config["hist_len"]
+    pred_len = config["pred_len"]
+    weight_decay = config["weight_decay"]
+    early_stop = config["early_stop"]
+    lr = config["lr"]
+    optimizer_name = config["optimizer"]
     wandb.init(
     project=config['wandb_init']['project'],
     name=config['wandb_init'].get('name', None),
@@ -340,4 +352,24 @@ def main():
 # Finish the wandb run
 wandb.finish()
 if __name__ == '__main__':
-    main()
+    ray.init(local_mode=True)  # Initialize Ray (you can configure it differently)
+        
+    # Define the hyperparameter search space
+    search_space = {
+        "batch_size": tune.grid_search([32, 64]),
+        "epochs": tune.grid_search([30, 50]),
+        "hist_len": tune.grid_search([1, 3]),
+        "pred_len": tune.grid_search([24, 48]),
+        "weight_decay": tune.grid_search([0.0001, 0.001]),
+        "early_stop": tune.grid_search([10, 20]),
+        "lr": tune.grid_search([0.0005, 0.001]),
+        "optimizer": tune.grid_search(["Adam", "SGD", "RMSprop"])
+    }
+
+    analysis = tune.run(
+        wrapped_main,  # Use the wrapped main function
+        config=search_space,
+        name="hyperparameter_tuning_experiment",
+        verbose=1,
+        progress_reporter=CLIReporter(),
+    )
