@@ -205,8 +205,7 @@ def main():
     wandb.login(key=config['wandb_login'].get('api_key', None),
     )
 
-    wandb.log({"batch_size": batch_size, "epochs": epochs,"hist_len": hist_len,"pred_len": pred_len,"weight_decay": weight_decay,"early_stop": early_stop,"lr": lr})
-
+    wandb.log({"optimizer": "Adam","batch_size": batch_size, "epochs": epochs,"hist_len": hist_len,"pred_len": pred_len,"weight_decay": weight_decay,"early_stop": early_stop,"lr": lr})
     exp_info = get_exp_info()
     print(exp_info)
 
@@ -308,7 +307,6 @@ def main():
     print(str(model))
     print(metric_fp)
     
-wandb.log({"optimizer": optimizer})
 # Finish the wandb run
 wandb.finish()
 if __name__ == '__main__':
