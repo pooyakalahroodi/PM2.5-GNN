@@ -25,11 +25,7 @@ import pickle
 import glob
 import shutil
 import wandb
-import argparse
-import ray
-from ray import tune
-from ray.tune import CLIReporter, JupyterNotebookReporter
-from ray.tune.schedulers import ASHAScheduler, HyperBandScheduler
+
 
 
 torch.set_num_threads(1)
@@ -41,29 +37,6 @@ print('use cuda : ',use_cuda)
 graph = Graph()
 city_num = graph.node_num
 
-
-# Define the command-line arguments
-#parser = argparse.ArgumentParser()
-#parser.add_argument("--batch_size", type=int, default=32, help="please insert the batch size")
-#parser.add_argument("--epochs", type=int, default=30, help="please insert the number of epochs")
-#parser.add_argument("--hist_len", type=int, default=24, help="please insert the time series's history len")
-#parser.add_argument("--pred_len", type=int, default=1, help="please insert the time series's history len")
-#parser.add_argument("--optimizer", type=str, default="Adam", help="Optimizer name")
-#parser.add_argument("--lr", type=float, default=0.001, help="Learning rate")
-#parser.add_argument("--weight_decay", type=float, default=0.0001, help="Weight decay")
-
-#args = parser.parse_args()
-
-
-# Access the argument values in the code
-
-#optimizer_name = args.optimizer
-#batch_size = args.batch_size
-#epochs = args.epochs
-#hist_len = args.hist_len
-#pred_len = args.pred_len
-#weight_decay = args.weight_decay
-#lr = args.lr
 batch_size = config['train']['batch_size']
 epochs = config['train']['epochs']
 hist_len = config['train']['hist_len']
@@ -77,6 +50,13 @@ exp_model = config['experiments']['model']
 exp_repeat = config['train']['exp_repeat']
 save_npy = config['experiments']['save_npy']
 criterion = nn.MSELoss()
+
+train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
+val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
+test_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Test')
+in_dim = train_data.feature.shape[-1] + train_data.pm25.shape[-1]
+wind_mean, wind_std = train_data.wind_mean, train_data.wind_std
+pm25_mean, pm25_std = test_data.pm25_mean, test_data.pm25_std
 
 
 def get_metric(predict_epoch, label_epoch):
@@ -214,31 +194,13 @@ def get_mean_std(data_list):
     return data.mean(), data.std()
 
 
-def main(config):
-  
-    batch_size = config["batch_size"]
-    epochs = config["epochs"]
-    hist_len = config["hist_len"]
-    pred_len = config["pred_len"]
-    weight_decay = config["weight_decay"]
-    early_stop = config["early_stop"]
-    lr = config["lr"]
-    optimizer_name = config["optimizer"]
+def main():
     wandb.init(
     project=config['wandb_init']['project'],
     name=config['wandb_init'].get('name', None),
     config=config['train'],
     # Add other settings as needed
     )
-
-    # Run the data setup code here
-    train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
-    val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
-    test_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Test')
-    in_dim = train_data.feature.shape[-1] + train_data.pm25.shape[-1]
-    wind_mean, wind_std = train_data.wind_mean, train_data.wind_std
-    pm25_mean, pm25_std = test_data.pm25_mean, test_data.pm25_std
-
 
     wandb.login(key=config['wandb_login'].get('api_key', None),
     )
@@ -265,12 +227,7 @@ def main(config):
 
         print(str(model))
 
-        if optimizer_name == "Adam":
-           optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-        elif optimizer_name == "SGD":
-           optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate, momentum=args.momentum, weight_decay=weight_decay)
-        elif optimizer_name == "RMSprop":
-           optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
+        optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
 
         exp_model_dir = os.path.join(results_dir, '%s_%s' % (hist_len, pred_len), str(dataset_num), model_name, str(exp_time), '%02d' % exp_idx)
         if not os.path.exists(exp_model_dir):
@@ -354,33 +311,4 @@ def main(config):
 # Finish the wandb run
 wandb.finish()
 if __name__ == '__main__':
-    ray.init(
-    object_store_memory=2 * 10**9,  # Set the object store memory limit as needed
-    num_gpus=1,  # Enable GPU support if needed
-    local_mode=True,  # Run in local mode for single-machine testing
-)   
-    train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
-    val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
-    test_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Test')
-    in_dim = train_data.feature.shape[-1] + train_data.pm25.shape[-1]
-    wind_mean, wind_std = train_data.wind_mean, train_data.wind_std
-    pm25_mean, pm25_std = test_data.pm25_mean, test_data.pm25_std    
-    # Define the hyperparameter search space
-    search_space = {
-        "batch_size": tune.grid_search([32, 64]),
-        "epochs": tune.grid_search([50]),
-        "hist_len": tune.grid_search([1, 3]),
-        "pred_len": tune.grid_search([24]),
-        "weight_decay": tune.grid_search([0.0001, 0.001]),
-        "early_stop": tune.grid_search([10, 20]),
-        "lr": tune.grid_search([0.0005, 0.001]),
-        "optimizer": tune.grid_search(["Adam","RMSprop"])
-    }
-
-    analysis = tune.run(
-        main,  # Use the wrapped main function
-        config=search_space,
-        name="hyperparameter_tuning_experiment",
-        verbose=1,
-        progress_reporter=CLIReporter(),
-    )
+    main()
