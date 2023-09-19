@@ -307,7 +307,8 @@ def main():
     print(exp_metric_str)
     print(str(model))
     print(metric_fp)
-
+    
+wandb.log({"optimizer": optimizer})
 # Finish the wandb run
 wandb.finish()
 if __name__ == '__main__':
