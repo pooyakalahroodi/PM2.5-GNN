@@ -232,7 +232,7 @@ def main():
             optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
         elif optimizer_name == "RMSprop":
             # Handle RMSprop optimizer
-            print("Optimizer is RMSprop. Performing actions for RMSprop.")
+            print("Optimizer is Adam. Performing actions for Adam.")
             optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
         else:
             # Handle other optimizers
