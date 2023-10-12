@@ -234,8 +234,6 @@ def main():
             # Handle RMSprop optimizer
             print("Optimizer is RMSprop. Performing actions for RMSprop.")
             optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
-
-
         else:
             # Handle other optimizers
             print(f"Optimizer is {optimizer_name}, which is not one of the desired optimizers.")
