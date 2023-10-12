@@ -37,6 +37,8 @@ print('use cuda : ',use_cuda)
 graph = Graph()
 city_num = graph.node_num
 
+
+optimizer_name = config['train']['optimizer']
 batch_size = config['train']['batch_size']
 epochs = config['train']['epochs']
 hist_len = config['train']['hist_len']
