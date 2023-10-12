@@ -227,7 +227,20 @@ def main():
 
         print(str(model))
 
-        optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
+        if optimizer_name = "RMSprop":
+            print(f"Optimizer is {optimizer_name}, which is not one of the desired optimizers.")
+            optimizer = torch.optim.RMSprop(model.parameters(), lr=lr, weight_decay=weight_decay)
+        elif optimizer_name == "RMSprop":
+            # Handle RMSprop optimizer
+            print("Optimizer is RMSprop. Performing actions for RMSprop.")
+            optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+
+
+        else:
+            # Handle other optimizers
+            print(f"Optimizer is {optimizer_name}, which is not one of the desired optimizers.")
+            optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=weight_decay)
+
 
         exp_model_dir = os.path.join(results_dir, '%s_%s' % (hist_len, pred_len), str(dataset_num), model_name, str(exp_time), '%02d' % exp_idx)
         if not os.path.exists(exp_model_dir):
