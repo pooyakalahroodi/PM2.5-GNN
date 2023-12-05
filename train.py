@@ -14,6 +14,7 @@ from model.nodesFC_GRU import nodesFC_GRU
 from model.PM25_GNN import PM25_GNN
 from model.PM25_GNN_nosub import PM25_GNN_nosub
 from model.TransformerGNN import TransformerGNN
+from model.TransformerGNN_with_PE import TransformerGNN_with_PE
 
 
 import arrow
