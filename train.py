@@ -121,6 +121,8 @@ def get_model():
         return TransformerGNN(hist_len, pred_len, in_dim, city_num, batch_size, device, graph.edge_index, graph.edge_attr, wind_mean, wind_std,)
     elif exp_model == 'TransformerGNN_with_PE':
         return TransformerGNN(hist_len, pred_len, in_dim, city_num, batch_size, device, graph.edge_index, graph.edge_attr, wind_mean, wind_std,)
+    elif exp_model == 'TransformerGNN_with_PE':
+        return TransformerGNN_with_PE(hist_len, pred_len, in_dim, city_num, batch_size, device, graph.edge_index, graph.edge_attr, wind_mean, wind_std,)
     else:
         raise Exception('Wrong model name!')
 
