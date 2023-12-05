@@ -16,8 +16,10 @@ experiments:
 #  model: GC_LSTM
 #  model: nodesFC_GRU
 #  model: PM25_GNN
-  model: PM25_GNN_nosub
+#  model: PM25_GNN_nosub
 #  model: TransformerGNN
+   model: TransformerGNN_with_PE
+
 
 
 
