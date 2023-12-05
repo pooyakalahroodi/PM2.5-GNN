@@ -18,9 +18,9 @@ class PositionalEncoding(nn.Module):
         x = x + self.pe[:x.size(0), :]
         return x
 
-class Transformer(nn.Module):
+class Transformer_with_PE(nn.Module):
     def __init__(self, input_dim, hidden_dim, num_heads=4, num_layers=2, dropout=0.1):
-        super(Transformer, self).__init__()
+        super(Transformer_with_PE, self).__init__()
 
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
