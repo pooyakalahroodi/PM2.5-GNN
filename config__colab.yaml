@@ -18,7 +18,7 @@ experiments:
 #  model: PM25_GNN
 #  model: PM25_GNN_nosub
 #  model: TransformerGNN
-   model: TransformerGNN_with_PE
+  model: TransformerGNN_with_PE
 
 wandb_init:
   project: 'TransformerGNN'
