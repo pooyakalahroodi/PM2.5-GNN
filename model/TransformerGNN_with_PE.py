@@ -64,9 +64,9 @@ class GraphGNN(nn.Module):
         return out
 
 
-class TransformerGNN(nn.Module):
+class TransformerGNN_with_PE(nn.Module):
     def __init__(self, hist_len, pred_len, in_dim, city_num, batch_size, device, edge_index, edge_attr, wind_mean, wind_std, use_positional_encoding=True):
-        super(TransformerGNN, self).__init__()
+        super(TransformerGNN_with_PE, self).__init__()
 
         self.device = device
         self.hist_len = hist_len
