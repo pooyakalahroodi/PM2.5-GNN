@@ -5,7 +5,7 @@ import numpy as np
 from torch_scatter import scatter_add#, scatter_sub  # no scatter sub in lastest PyG
 from torch.nn import functional as F
 from torch.nn import Parameter
-from model.Transformer import Transformer
+from model.Transformer_with_PE import Transformer_with_PE
 
 class GraphGNN(nn.Module):
     def __init__(self, device, edge_index, edge_attr, in_dim, out_dim, wind_mean, wind_std):
@@ -83,9 +83,9 @@ class TransformerGNN_with_PE(nn.Module):
         self.graph_gnn = GraphGNN(self.device, edge_index, edge_attr, self.in_dim, self.gnn_out, wind_mean, wind_std)
 
         if use_positional_encoding:
-            self.transformer = TransformerWithPositionalEncoding(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
+            self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
         else:
-            self.transformer = TransformerWithoutPositionalEncoding(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
+            self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
 
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
 
