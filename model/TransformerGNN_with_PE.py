@@ -5,7 +5,7 @@ import numpy as np
 from torch_scatter import scatter_add#, scatter_sub  # no scatter sub in lastest PyG
 from torch.nn import functional as F
 from torch.nn import Parameter
-from model.Transformer_with_PE import Transformer_with_PE
+from model.Transformer_with_PE import Transformer_with_PE, PositionalEncoding
 
 class GraphGNN(nn.Module):
     def __init__(self, device, edge_index, edge_attr, in_dim, out_dim, wind_mean, wind_std):
