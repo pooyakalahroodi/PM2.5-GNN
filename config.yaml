@@ -36,6 +36,10 @@ filepath:
     knowair_fp: /Users/kalahroodi/PM2.5-GNN/KnowAir.npy
     results_dir: https://drive.google.com/drive/folders/1sJh2JwA1mgOKBrZUg-ZEaWUIMFhei0kk?usp=drive_link
 
+    
+optimizer: Adam
+
+
 data:
   metero_var:
     ['100m_u_component_of_wind',
