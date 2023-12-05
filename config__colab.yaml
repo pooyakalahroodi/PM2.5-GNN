@@ -17,7 +17,8 @@ experiments:
 #  model: nodesFC_GRU
 #  model: PM25_GNN
 #  model: PM25_GNN_nosub
-  model: TransformerGNN
+#  model: TransformerGNN
+   model: TransformerGNN_with_PE
 
 wandb_init:
   project: 'TransformerGNN'
