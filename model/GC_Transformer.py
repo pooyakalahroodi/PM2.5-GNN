@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import ChebConv
-from transformer_module import Transformer_with_PE  # Import the Transformer class
+from model.Transformer_with_PE import Transformer_with_PE  # Import the Transformer class
 
 class GC_Transformer(nn.Module):
     def __init__(self, hist_len, pred_len, in_dim, city_num, batch_size, device, edge_index, num_heads=4, num_layers=2, dropout=0.1):
@@ -13,7 +13,7 @@ class GC_Transformer(nn.Module):
         self.city_num = city_num
         self.batch_size = batch_size
         self.in_dim = in_dim
-        self.hid_dim = 32  # Define the hidden dimension size
+        self.hid_dim = 52  # Define the hidden dimension size
         self.out_dim = 1
         self.gcn_out = 1
 
@@ -21,7 +21,7 @@ class GC_Transformer(nn.Module):
         self.conv = ChebConv(self.in_dim, self.gcn_out, K=2)
 
         # Transformer module with Positional Encoding
-        self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gcn_out, hidden_dim=self.hid_dim, num_heads=num_heads, num_layers=num_layers, dropout=dropout)
+        self.transformer = Transformer_with_PE(input_dim=self.in_dim*3 + self.gcn_out, hidden_dim=self.hid_dim, num_heads=num_heads, num_layers=num_layers, dropout=dropout)
 
         # Final output layer
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
