@@ -15,6 +15,8 @@ from model.PM25_GNN import PM25_GNN
 from model.PM25_GNN_nosub import PM25_GNN_nosub
 from model.TransformerGNN import TransformerGNN
 from model.TransformerGNN_with_PE import TransformerGNN_with_PE
+from model.GC_Transformer import GC_Transformer
+
 
 
 import arrow
@@ -122,6 +124,8 @@ def get_model():
         return TransformerGNN(hist_len, pred_len, in_dim, city_num, batch_size, device, graph.edge_index, graph.edge_attr, wind_mean, wind_std,)
     elif exp_model == 'TransformerGNN_with_PE':
         return TransformerGNN_with_PE(hist_len, pred_len, in_dim, city_num, batch_size, device, graph.edge_index, graph.edge_attr, wind_mean, wind_std,)
+    elif exp_model == 'GC_Transformer':
+        return GC_Transformer(hist_len, pred_len, in_dim, city_num, batch_size, device, graph.edge_index, wind_mean, wind_std,)
     else:
         raise Exception('Wrong model name!')
 
