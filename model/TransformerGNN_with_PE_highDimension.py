@@ -88,7 +88,7 @@ class TransformerGNN_with_PE(nn.Module):
             self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gnn_out, hidden_dim=self.hid_dim, num_heads=4, num_layers=4)
 
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
-        self.fc_out = nn.Linear(104, self.out_dim)  # Changed from 52 to 104
+        self.fc_out = nn.Linear(140, self.out_dim)  # Changed from 52 to 104
 
     def forward(self, pm25_hist, feature):
         pm25_pred = []
