@@ -92,6 +92,8 @@ class TransformerGNN_with_PE(nn.Module):
 
     def forward(self, pm25_hist, feature):
         pm25_pred = []
+        seq_len = pm25_hist.size(1)
+       
         h0 = torch.zeros(self.batch_size * self.city_num, self.hid_dim).to(self.device)
         hn = h0
         xn = pm25_hist[:, -1]
@@ -103,7 +105,7 @@ class TransformerGNN_with_PE(nn.Module):
             xn_gnn = self.graph_gnn(xn_gnn)
             x = torch.cat([xn_gnn, x], dim=-1)
 
-            hn = self.transformer(x)  # Using Transformer with or without positional encoding
+            hn = self.transformer(x,seq_len)  # Using Transformer with or without positional encoding
             print("hn dimension",hn.shape)
             xn = hn.view(self.batch_size, self.city_num, self.hid_dim)
             xn = self.fc_out(xn)
