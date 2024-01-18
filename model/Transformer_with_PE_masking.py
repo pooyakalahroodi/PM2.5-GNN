@@ -50,11 +50,11 @@ class Transformer_with_PE(nn.Module):
 
 
     def generate_square_subsequent_mask(seq_len):
-        mask = torch.triu(torch.ones(size, size), diagonal=1).type(torch.bool)
+        mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1).type(torch.bool)
         return mask
 
 
-    def forward(self, x):
+    def forward(self, x,seq_len):
         # Expand input dimension
         x = self.expand_dim(x)
 
@@ -62,7 +62,7 @@ class Transformer_with_PE(nn.Module):
         x = self.positional_encoding(x)
 
         # Generate mask with size equal to the sequence length
-        mask = generate_square_subsequent_mask(seq_len).to(self.device)
+        mask = Transformer_with_PE.generate_square_subsequent_mask(seq_len).to(self.device)
         
         # Multi-Head Self-Attention
         attn_output, _ = self.self_attention(x, x, x, attn_mask=mask)
