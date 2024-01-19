@@ -77,7 +77,7 @@ class TransformerGNN_with_PE(nn.Module):
         self.in_dim = in_dim
         self.hid_dim = 26
         self.out_dim = 1
-        self.gnn_out = 13
+        self.gnn_out = 14
 
         self.fc_in = nn.Linear(self.in_dim, self.hid_dim)
         self.graph_gnn = GraphGNN(self.device, edge_index, edge_attr, self.in_dim, self.gnn_out, wind_mean, wind_std)
@@ -92,9 +92,13 @@ class TransformerGNN_with_PE(nn.Module):
     def forward(self, pm25_hist, feature):
 
         # Initialize the initial hidden state hn
+        print ("pm25_hist shape:",pm25_hist.shape,"feature shape:",feature.shape )
+
         hn = torch.zeros(self.batch_size * self.city_num, self.hid_dim).to(self.device)
-        xn = pm25_hist[:, -1]
-        print (xn.shape,feature[:, self.hist_len:self.hist_len + self.pred_len].shape )
+        #xn = pm25_hist[:,-24:,:]
+        xn = pm25_hist  # This adds an extra dimension at index 1
+
+        #print (xn.shape,feature[:, self.hist_len:self.hist_len + self.pred_len].shape )
         # Prepare the input data for the Transformer
         x = torch.cat((xn, feature[:, self.hist_len:self.hist_len + self.pred_len]), dim=-1)
     
