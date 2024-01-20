@@ -90,7 +90,16 @@ class TransformerGNN_with_PE(nn.Module):
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
 
     def forward(self, pm25_hist, feature):
+        pm25_pred = []
+        h0 = torch.zeros(self.batch_size * self.city_num, self.hid_dim).to(self.device)
+        hn = h0
+        gn = pm25_hist[:, -1] 
+        xgnn = torch.cat((gn, feature[:, -1]), dim=-1) # The history of the features at the latest time step
 
+        xn_gnn = xgnn
+        xn_gnn = xn_gnn.contiguous()
+        xn_gnn = self.graph_gnn(xn_gnn)
+        xn_gnn = xn_gnn.unsqueeze(1).repeat(1, pm25_hist.size(1), 1, 1)
         # Initialize the initial hidden state hn
         print ("pm25_hist shape:",pm25_hist.shape,"feature shape:",feature.shape )
 
@@ -102,11 +111,9 @@ class TransformerGNN_with_PE(nn.Module):
         # Prepare the input data for the Transformer
         x = torch.cat((xn, feature[:, self.hist_len:self.hist_len + self.pred_len]), dim=-1)
     
-        # Process with GNN
-        x_gnn = self.graph_gnn(x)
-    
         # Concatenate GNN output with the input data and pass it through the Transformer
-        x = torch.cat([x_gnn, x], dim=-1)
+        print("x shape:",x.shape,"xn_gnn shape:",xn_gnn.shape)
+        x = torch.cat([x, xn_gnn], dim=-1)
         hn = self.transformer(x)
 
         # Get predictions for all time steps
