@@ -11,11 +11,11 @@ class PositionalEncoding(nn.Module):
         div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).transpose(0, 1)
+        pe = pe[:max_len, :]
         self.register_buffer('pe', pe)
 
     def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[:x.size(2), :].unsqueeze(0).unsqueeze(0)
         return x
 
 class Transformer_with_PE(nn.Module):
@@ -30,7 +30,7 @@ class Transformer_with_PE(nn.Module):
         self.positional_encoding = PositionalEncoding(d_model=input_dim)
 
         # Multi-Head Self-Attention Layer
-        self.self_attention = nn.MultiheadAttention(embed_dim=self.input_dim, num_heads=self.num_heads, dropout=dropout)
+        self.self_attention = nn.MultiheadAttention(embed_dim=input_dim, num_heads=num_heads, dropout=dropout)
 
         # Layer Normalization after self-attention
         self.norm1 = nn.LayerNorm(input_dim)
@@ -50,7 +50,10 @@ class Transformer_with_PE(nn.Module):
         x = self.positional_encoding(x)
 
         # Multi-Head Self-Attention
-        attn_output, _ = self.self_attention(x, x, x)
+        batch_size, seq_len, num_cities, embedding_dim = x.size()
+        x_flat = x.view(batch_size * seq_len, num_cities, embedding_dim)
+        attn_output, _ = self.self_attention(x_flat, x_flat, x_flat)
+        attn_output = attn_output.view(batch_size, seq_len, num_cities, embedding_dim)
 
         # Residual Connection and Layer Normalization
         x = self.norm1(x + attn_output)
