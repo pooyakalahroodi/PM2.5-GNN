@@ -75,7 +75,7 @@ class TransformerGNN_with_PE(nn.Module):
         self.batch_size = batch_size
 
         self.in_dim = in_dim
-        self.hid_dim = 26
+        self.hid_dim = 36
         self.out_dim = 1
         self.gnn_out = 14
 
