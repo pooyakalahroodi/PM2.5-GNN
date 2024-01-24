@@ -16,6 +16,8 @@ class GC_Transformer(nn.Module):
         self.edge_index = torch.LongTensor(edge_index)
         self.edge_index = self.edge_index.view(2, 1, -1).repeat(1, batch_size, 1) + torch.arange(batch_size).view(1, -1, 1) * city_num
         self.edge_index = self.edge_index.view(2, -1)
+        # Move edge_index to the correct device
+        self.edge_index = self.edge_index.to(device)
         self.device = device
         self.hist_len = hist_len
         self.pred_len = pred_len
@@ -42,11 +44,27 @@ class GC_Transformer(nn.Module):
         gn = pm25_hist[:, -1] 
         xgcn = torch.cat((gn, feature[:, -1]), dim=-1) # The history of the features at the latest time step
 
-        xn_xgcn = xgcn
-        xn_xgcn = xn_xgcn.contiguous()
-        x_gcn = xn_xgcn.view(self.batch_size * self.city_num, -1)
-        x_gcn = F.sigmoid(self.conv(x_gcn, self.edge_index))
-        x_gcn = x_gcn.view(self.batch_size, self.city_num, -1)
+         # List to hold the outputs for each time step
+        time_step_outputs = []
+
+        # Loop over each time step in the historical data
+        print("pm25_hist.size(1) : ",pm25_hist.size(1))
+        for t in range(pm25_hist.size(1)):
+            # Extract the data for the current time step
+            current_step = pm25_hist[:, t, :, :]
+
+            # Prepare the input for the GC model
+            x_gcn = torch.cat((current_step, feature[:, t, :, :]), dim=-1)
+            x_gcn = x_gcn.view(self.batch_size * self.city_num, -1)
+            x_gcn = F.sigmoid(self.conv(x_gcn, self.edge_index))
+            x_gcn = x_gcn.view(self.batch_size, self.city_num, -1)
+
+            # Append the output for the current time step
+            time_step_outputs.append(x_gcn)
+
+        # Concatenate the outputs along the time dimension
+        x_gcn_all = torch.stack(time_step_outputs, dim=1)  # Shape: [batch_size, hist_len, num_cities, num_features]
+
         #xn_xgcn = xn_xgcn.unsqueeze(1).repeat(1, pm25_hist.size(1), 1, 1)
         # Initialize the initial hidden state hn
         print ("pm25_hist shape:",pm25_hist.shape,"feature shape:",feature.shape )
@@ -60,8 +78,8 @@ class GC_Transformer(nn.Module):
         x = torch.cat((xn, feature[:, self.hist_len:self.hist_len + self.pred_len]), dim=-1)
     
         # Concatenate GNN output with the input data and pass it through the Transformer
-        print("x shape:",x.shape,"xn_gnn shape:",xn_gnn.shape)
-        x = torch.cat([x, xn_gnn], dim=-1)
+        print("x shape:",x.shape,"xn_gnn shape:",x_gcn.shape)
+        x = torch.cat([x, x_gcn], dim=-1)
         hn = self.transformer(x)
 
         # Get predictions for all time steps
