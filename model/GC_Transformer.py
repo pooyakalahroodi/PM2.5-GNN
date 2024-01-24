@@ -24,7 +24,7 @@ class GC_Transformer(nn.Module):
         self.city_num = city_num
         self.batch_size = batch_size
         self.in_dim = in_dim
-        self.hid_dim = 32
+        self.hid_dim = 36
         self.out_dim = 1
         self.gcn_out = 14
         self.conv = ChebConv(self.in_dim, self.gcn_out, K=2)
@@ -78,8 +78,8 @@ class GC_Transformer(nn.Module):
         x = torch.cat((xn, feature[:, self.hist_len:self.hist_len + self.pred_len]), dim=-1)
     
         # Concatenate GNN output with the input data and pass it through the Transformer
-        print("x shape:",x.shape,"xn_gnn shape:",x_gcn.shape)
-        x = torch.cat([x, x_gcn], dim=-1)
+        print("x shape:",x.shape,"x_gcn shape:",x_gcn.shape)
+        x = torch.cat([x, x_gcn_all], dim=-1)
         hn = self.transformer(x)
 
         # Get predictions for all time steps
