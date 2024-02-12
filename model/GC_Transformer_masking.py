@@ -31,9 +31,9 @@ class GC_Transformer(nn.Module):
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
 
         if use_positional_encoding:
-            self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gcn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
+           self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gcn_out, hidden_dim=self.hid_dim, hist_len=self.hist_len, batch_size=self.batch_size, city_num=self.city_num, num_heads=2, num_layers=2, dropout=0.1)
         else:
-            self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gcn_out, hidden_dim=self.hid_dim, num_heads=2, num_layers=2)
+           self.transformer = Transformer_with_PE(input_dim=self.in_dim + self.gcn_out, hidden_dim=self.hid_dim, hist_len=self.hist_len, batch_size=self.batch_size, city_num=self.city_num, num_heads=2, num_layers=2, dropout=0.1)
 
         self.fc_out = nn.Linear(self.hid_dim, self.out_dim)
 
