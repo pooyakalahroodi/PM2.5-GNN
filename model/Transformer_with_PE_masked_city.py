@@ -41,10 +41,20 @@ class Transformer_with_PE(nn.Module):
             nn.ReLU(),
             nn.Linear(hidden_dim, input_dim)
         )
-
         # Layer Normalization after feedforward
         self.norm2 = nn.LayerNorm(input_dim)
+        
+    def create_city_mask(self, batch_size, num_cities, time_steps):
+        mask = torch.full((num_cities * time_steps, num_cities * time_steps), float('-inf'))
+        for i in range(num_cities):
+            start_idx = i * time_steps
+            end_idx = start_idx + time_steps
+            mask[start_idx:end_idx, start_idx:end_idx] = 0
 
+        # Repeat the mask for each batch
+        mask = mask.unsqueeze(0).repeat(batch_size, 1, 1)
+        return mask
+        
     def forward(self, x):
         # Apply Positional Encoding
         x = self.positional_encoding(x)
@@ -52,7 +62,10 @@ class Transformer_with_PE(nn.Module):
         # Multi-Head Self-Attention
         batch_size, seq_len, num_cities, embedding_dim = x.size()
         x_flat = x.view(batch_size * seq_len, num_cities, embedding_dim)
-        attn_output, _ = self.self_attention(x_flat, x_flat, x_flat)
+        
+        # Create and apply the mask
+        mask = self.create_city_mask(batch_size, num_cities, seq_len).to(x.device)
+        attn_output, _ = self.self_attention(x_flat, x_flat, x_flat, attn_mask=mask)
         attn_output = attn_output.view(batch_size, seq_len, num_cities, embedding_dim)
 
         # Residual Connection and Layer Normalization
