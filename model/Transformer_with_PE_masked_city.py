@@ -3,6 +3,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import math
 
+num_cities=184
+batch_size=32
+sequence_length=24
+
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -19,9 +23,12 @@ class PositionalEncoding(nn.Module):
         return x
 
 class Transformer_with_PE(nn.Module):
-    def __init__(self, input_dim, hidden_dim, num_heads=4, num_layers=2, dropout=0.1):
+    def __init__(self, input_dim, hidden_dim, hist_len, batch_size, city_num, num_heads=2, num_layers=2, dropout=0.1):
         super(Transformer_with_PE, self).__init__()
 
+        self.hist_len = hist_len
+        self.city_num = city_num
+        self.batch_size = batch_size
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
         self.num_heads = num_heads
@@ -44,16 +51,23 @@ class Transformer_with_PE(nn.Module):
         # Layer Normalization after feedforward
         self.norm2 = nn.LayerNorm(input_dim)
         
-    def create_city_mask(self, batch_size, num_cities, time_steps):
-        mask = torch.full((num_cities * time_steps, num_cities * time_steps), float('-inf'))
-        for i in range(num_cities):
-            start_idx = i * time_steps
-            end_idx = start_idx + time_steps
-            mask[start_idx:end_idx, start_idx:end_idx] = 0
+    def create_city_mask(self, num_heads, city_num , batch_size, hist_len):
+        # Create a basic mask for one city
+        city_mask = torch.zeros(hist_len, hist_len)
 
-        # Repeat the mask for each batch
-        mask = mask.unsqueeze(0).repeat(batch_size, 1, 1)
+        # Repeat this mask for each city
+        mask = city_mask.repeat(city_num, 1, 1)
+
+        # Repeat the mask for each head
+        mask = mask.repeat(num_heads, 1, 1)
+
+        # Repeat the mask for each batch element
+        mask = mask.repeat(batch_size, 1, 1)
+
         return mask
+
+
+
         
     def forward(self, x):
         # Apply Positional Encoding
@@ -64,10 +78,11 @@ class Transformer_with_PE(nn.Module):
         x_flat = x.view(batch_size * seq_len, num_cities, embedding_dim)
         
         # Create and apply the mask
-        mask = self.create_city_mask(batch_size, num_cities, seq_len).to(x.device)
+        num_heads = self.num_heads  # make sure this is defined in your model
+        mask = self.create_city_mask(num_heads, self.city_num, batch_size, seq_len).to(x.device)
+        # Multi-Head Self-Attention
         attn_output, _ = self.self_attention(x_flat, x_flat, x_flat, attn_mask=mask)
         attn_output = attn_output.view(batch_size, seq_len, num_cities, embedding_dim)
-
         # Residual Connection and Layer Normalization
         x = self.norm1(x + attn_output)
 
