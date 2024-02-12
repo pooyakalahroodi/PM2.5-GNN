@@ -51,18 +51,18 @@ class Transformer_with_PE(nn.Module):
         # Layer Normalization after feedforward
         self.norm2 = nn.LayerNorm(input_dim)
         
-    def create_city_mask(self, num_heads, city_num , batch_size, hist_len):
-        # Create a basic mask for one city
-        city_mask = torch.zeros(hist_len, hist_len)
+    def create_city_mask(self, num_heads, num_cities, batch_size, sequence_length):
+        # Initialize the mask to block all attention
+        mask = torch.full((num_cities * num_heads, batch_size * sequence_length, batch_size * sequence_length), float('-inf'))
 
-        # Repeat this mask for each city
-        mask = city_mask.repeat(city_num, 1, 1)
-
-        # Repeat the mask for each head
-        mask = mask.repeat(num_heads, 1, 1)
-
-        # Repeat the mask for each batch element
-        mask = mask.repeat(batch_size, 1, 1)
+        # Allow attention within the time steps of each city across all batches
+        for city in range(num_cities):
+            for head in range(num_heads):
+                mask_index = city * num_heads + head
+                for b in range(batch_size):
+                  start_idx = b * sequence_length
+                  end_idx = start_idx + sequence_length
+                  mask[mask_index, start_idx:end_idx, start_idx:end_idx] = 0
 
         return mask
 
@@ -77,6 +77,7 @@ class Transformer_with_PE(nn.Module):
         batch_size, seq_len, num_cities, embedding_dim = x.size()
         x_flat = x.view(batch_size * seq_len, num_cities, embedding_dim)
         
+        print("x_flat_transformerwithPE",x_flat.size)
         # Create and apply the mask
         num_heads = self.num_heads  # make sure this is defined in your model
         mask = self.create_city_mask(num_heads, self.city_num, batch_size, seq_len).to(x.device)
