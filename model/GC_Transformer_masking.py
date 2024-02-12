@@ -80,6 +80,7 @@ class GC_Transformer(nn.Module):
         # Concatenate GNN output with the input data and pass it through the Transformer
         print("x shape:",x.shape,"x_gcn shape:",x_gcn.shape)
         x = torch.cat([x, x_gcn_all], dim=-1)
+        print("x shape after concatenating with xgc:",x.shape)
         hn = self.transformer(x)
 
         # Get predictions for all time steps
