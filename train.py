@@ -6,15 +6,6 @@ from util import config, file_dir
 from graph import Graph
 from dataset import HazeData
 
-from model.MLP import MLP
-from model.LSTM import LSTM
-from model.GRU import GRU
-from model.GC_LSTM import GC_LSTM
-from model.nodesFC_GRU import nodesFC_GRU
-from model.PM25_GNN import PM25_GNN
-from model.PM25_GNN_nosub import PM25_GNN_nosub
-from model.TransformerGNN import TransformerGNN
-from model.TransformerGNN_with_PE import TransformerGNN_with_PE
 from model.GC_Transformer import GC_Transformer
 
 
@@ -54,7 +45,7 @@ dataset_num = config['experiments']['dataset_num']
 exp_model = config['experiments']['model']
 exp_repeat = config['train']['exp_repeat']
 save_npy = config['experiments']['save_npy']
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 
 train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
 val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
@@ -182,10 +173,16 @@ def test(test_loader, model):
         loss = criterion(pm25_pred, pm25_label)
         test_loss += loss.item()
 
-        pm25_pred_val = np.concatenate([pm25_hist.cpu().detach().numpy(), pm25_pred.cpu().detach().numpy()], axis=1) * pm25_std + pm25_mean
-        pm25_label_val = pm25.cpu().detach().numpy() * pm25_std + pm25_mean
+        # Get the predicted PM2.5 values, scale them, and append to the list
+        pm25_pred_val = pm25_pred.cpu().detach().numpy() * pm25_std + pm25_mean
         predict_list.append(pm25_pred_val)
+
+        # Scale the true future values and append them to the list
+        pm25_label_val = pm25_label.cpu().detach().numpy() * pm25_std + pm25_mean
         label_list.append(pm25_label_val)
+
+
+      
         time_list.append(time_arr.cpu().detach().numpy())
 
     test_loss /= batch_idx + 1
