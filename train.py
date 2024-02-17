@@ -45,7 +45,7 @@ dataset_num = config['experiments']['dataset_num']
 exp_model = config['experiments']['model']
 exp_repeat = config['train']['exp_repeat']
 save_npy = config['experiments']['save_npy']
-criterion = nn.L1Loss()
+criterion = nn.MSELoss()
 
 train_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Train')
 val_data = HazeData(graph, hist_len, pred_len, dataset_num, flag='Val')
