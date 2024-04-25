@@ -1,22 +1,12 @@
 ---
 experiments:
-  metero_use: ['100m_u_component_of_wind',
-                '100m_v_component_of_wind',
-                '2m_dewpoint_temperature',
-                '2m_temperature',
-                'boundary_layer_height',
-                'k_index',
-                'relative_humidity+950',
-                'relative_humidity+975',
-                'specific_humidity+950',
-                'surface_pressure',
-                'temperature+925',
-                'temperature+950',
-                'total_precipitation',
-                'u_component_of_wind+950',
-                'v_component_of_wind+950',
-                'vertical_velocity+950',
-                'vorticity+950']
+  metero_use:   'boundary_layer_height',  # Comment out for no_BPL experiments.
+               'k_index',
+               'relative_humidity+950',
+               'surface_pressure',
+               'total_precipitation',
+               'u_component_of_wind+950',
+               'v_component_of_wind+950',]
   save_npy: True
   dataset_num: 3
 #  model: MLP
