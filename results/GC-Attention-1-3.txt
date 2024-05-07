@@ -1,0 +1,42 @@
+============== Train Info ==============
+Dataset number: 1
+Model_with_MSE: GC_Transformer
+Train: 2015-01-01T00:00:00+00:00 --> 2016-12-31T00:00:00+00:00
+Val: 2017-01-01T00:00:00+00:00 --> 2017-12-31T00:00:00+00:00
+Test: 2018-01-01T00:00:00+00:00 --> 2018-12-31T00:00:00+00:00
+City number: 184
+Use metero: ['2m_temperature', 'boundary_layer_height', 'k_index', 'relative_humidity+950', 'surface_pressure', 'total_precipitation', 'u_component_of_wind+950', 'v_component_of_wind+950']
+batch_size: 32
+epochs: 200
+hist_len: 24
+pred_len: 24
+weight_decay: 0.001
+early_stop: 10
+ex_repeat: 2
+lr: 0.0005
+========================================
+GC_Transformer(
+  (conv): ChebConv(22, 114, K=5, normalization=sym)
+  (fc_out): Linear(in_features=136, out_features=1, bias=True)
+  (transformer): Transformer_with_PE(
+    (positional_encoding): PositionalEncoding()
+    (self_attention): MultiheadAttention(
+      (out_proj): NonDynamicallyQuantizableLinear(in_features=136, out_features=136, bias=True)
+    )
+    (norm1): LayerNorm((136,), eps=1e-05, elementwise_affine=True)
+    (feedforward): Sequential(
+      (0): Linear(in_features=136, out_features=136, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=136, out_features=136, bias=True)
+    )
+    (norm2): LayerNorm((136,), eps=1e-05, elementwise_affine=True)
+  )
+)---------------------------------------
+train_loss | mean: 0.3610 std: 0.0082
+val_loss   | mean: 0.3969 std: 0.0000
+test_loss  | mean: 0.4450 std: 0.0011
+RMSE       | mean: 20.6426 std: 0.0474
+MAE        | mean: 16.5731 std: 0.0478
+CSI        | mean: 0.4380 std: 0.0015
+POD        | mean: 0.5415 std: 0.0030
+FAR        | mean: 0.3038 std: 0.0011
